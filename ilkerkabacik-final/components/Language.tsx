@@ -7,14 +7,24 @@ type Lang = 'en'|'tr'|'ar'|'zh'|'ja';
 type Ctx = { lang: Lang; setLang: (l:Lang)=>void; t: (k:string)=>string; };
 const LanguageContext = createContext<Ctx | null>(null);
 
-// JSON'ları bundle'dan yükle (fetch yok, 404 riski yok)
-const loaders: Record<Lang, () => Promise<Dict>> = {
-  tr: async () => (await import('../locales/tr.json')).default,
-  en: async () => (await import('../locales/en.json')).default,
-  ar: async () => (await import('../locales/ar.json')).default,
-  zh: async () => (await import('../locales/zh.json')).default,
-  ja: async () => (await import('../locales/ja.json')).default,
-};
+/** Dosyayı nerede olursa olsun bul: önce bundle import, olmazsa public'ten fetch */
+async function loadDict(lang: Lang): Promise<Dict> {
+  // 1) Root /locales içinden dynamic import
+  try {
+    const mod = await import(`../locales/${lang}.json`);
+    return (mod as any).default as Dict;
+  } catch {
+    // 2) public/locales içinden fetch fallback
+    try {
+      const res = await fetch(`/locales/${lang}.json`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('404');
+      return await res.json();
+    } catch (e) {
+      console.error('i18n load error for', lang, e);
+      return {}; // dict boş kalırsa anahtarları gösterir
+    }
+  }
+}
 
 export function LanguageProvider({children}:{children:React.ReactNode}) {
   const [lang, setLang] = useState<Lang>('tr');
@@ -22,19 +32,19 @@ export function LanguageProvider({children}:{children:React.ReactNode}) {
 
   useEffect(() => {
     (async () => {
-      try {
-        const d = await loaders[lang]();
-        setDict(d);
-        document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-        document.documentElement.lang = lang;
-      } catch (e) {
-        console.error('i18n load error', e);
-      }
+      const d = await loadDict(lang);
+      setDict(d);
+      document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+      document.documentElement.lang = lang;
     })();
   }, [lang]);
 
   const t = (k:string) => dict[k] ?? k;
-  return <LanguageContext.Provider value={{lang, setLang, t}}>{children}</LanguageContext.Provider>;
+  return (
+    <LanguageContext.Provider value={{lang, setLang, t}}>
+      {children}
+    </LanguageContext.Provider>
+  );
 }
 
 export function useI18n(){
