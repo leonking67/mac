@@ -6,6 +6,7 @@ type Language = 'tr' | 'en';
 interface LanguageContextProps {
   language: Language;
   setLanguage: (lang: Language) => void;
+  setLang: (lang: Language) => void; // ✅ Nav.tsx ile uyum için eklendi
   t: (key: string) => string;
 }
 
@@ -29,10 +30,11 @@ const LanguageContext = createContext<LanguageContextProps | undefined>(undefine
 export const LanguageProvider = ({ children }: { children?: ReactNode }) => {
   const [language, setLanguage] = useState<Language>('tr');
 
+  const setLang = (lang: Language) => setLanguage(lang); // ✅ alias fonksiyon eklendi
   const t = (key: string) => translations[language][key] || key;
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, setLang, t }}>
       {children}
     </LanguageContext.Provider>
   );
