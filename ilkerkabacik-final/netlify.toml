@@ -1,6 +1,7 @@
 [build]
+  base = "ilkerkabacik-final"
   command = "npm run build"
-  publish = "ilkerkabacik-final/.next"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "18.18.0"
