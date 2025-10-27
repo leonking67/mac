@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import i18n from "../i18n";
 import { useTranslation } from "react-i18next";
 
 const languages = [
@@ -9,26 +8,27 @@ const languages = [
   { code: "en", label: "EN" },
   { code: "ar", label: "AR" },
   { code: "zh", label: "中文" },
-  { code: "ja", label: "日本語" }
+  { code: "ja", label: "日本語" },
 ];
 
-export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
-  const { i18n: i18nextInstance } = useTranslation();
+const LanguageProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+  const { i18n } = useTranslation();
 
   const changeLanguage = (lng: string) => {
-    i18nextInstance.changeLanguage(lng);
+    i18n.changeLanguage(lng);
     if (typeof window !== "undefined") {
       localStorage.setItem("language", lng);
     }
   };
 
   React.useEffect(() => {
-    const savedLng =
-      typeof window !== "undefined" ? localStorage.getItem("language") : null;
-    if (savedLng && savedLng !== i18nextInstance.language) {
-      i18nextInstance.changeLanguage(savedLng);
+    if (typeof window !== "undefined") {
+      const savedLng = localStorage.getItem("language");
+      if (savedLng && savedLng !== i18n.language) {
+        i18n.changeLanguage(savedLng);
+      }
     }
-  }, [i18nextInstance]);
+  }, [i18n]);
 
   return (
     <div className="flex items-center gap-2">
@@ -36,8 +36,8 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
         <button
           key={lng.code}
           onClick={() => changeLanguage(lng.code)}
-          className={`px-2 py-1 text-sm rounded ${
-            i18nextInstance.language === lng.code
+          className={`px-2 py-1 text-sm rounded transition-colors ${
+            i18n.language === lng.code
               ? "bg-blue-500 text-white"
               : "bg-transparent text-gray-300 hover:text-white"
           }`}
@@ -51,5 +51,3 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
 };
 
 export default LanguageProvider;
-
-
