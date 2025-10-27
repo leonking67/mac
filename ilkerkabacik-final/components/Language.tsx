@@ -26,7 +26,7 @@ const translations: Record<Language, Record<string, string>> = {
 
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
 
-export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+export const LanguageProvider = ({ children }: { children?: ReactNode }) => {
   const [language, setLanguage] = useState<Language>('tr');
 
   const t = (key: string) => translations[language][key] || key;
@@ -43,4 +43,5 @@ export const useI18n = () => {
   if (!context) throw new Error('useI18n must be used within a LanguageProvider');
   return context;
 };
+
 export default LanguageProvider;
