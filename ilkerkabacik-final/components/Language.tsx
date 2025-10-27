@@ -43,3 +43,4 @@ export const useI18n = () => {
   if (!context) throw new Error('useI18n must be used within a LanguageProvider');
   return context;
 };
+export default LanguageProvider;
