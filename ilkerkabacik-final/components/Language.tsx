@@ -1,37 +1,51 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import React from "react";
+import i18n from "../i18n";
+import { useTranslation } from "react-i18next";
 
-export default function Language() {
-  const { i18n } = useTranslation();
+const languages = [
+  { code: "tr", label: "TR" },
+  { code: "en", label: "EN" },
+  { code: "ar", label: "AR" },
+  { code: "zh", label: "中文" },
+  { code: "ja", label: "日本語" }
+];
+
+export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
+  const { i18n: i18nextInstance } = useTranslation();
 
   const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
+    i18nextInstance.changeLanguage(lng);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("language", lng);
+    }
   };
+
+  React.useEffect(() => {
+    const savedLng =
+      typeof window !== "undefined" ? localStorage.getItem("language") : null;
+    if (savedLng && savedLng !== i18nextInstance.language) {
+      i18nextInstance.changeLanguage(savedLng);
+    }
+  }, [i18nextInstance]);
 
   return (
     <div className="flex items-center gap-2">
-      <button
-        onClick={() => changeLanguage('tr')}
-        className={`px-3 py-1 rounded-md text-sm font-medium transition ${
-          i18n.language === 'tr'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-        }`}
-      >
-        TR
-      </button>
-      <button
-        onClick={() => changeLanguage('en')}
-        className={`px-3 py-1 rounded-md text-sm font-medium transition ${
-          i18n.language === 'en'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-        }`}
-      >
-        EN
-      </button>
+      {languages.map((lng) => (
+        <button
+          key={lng.code}
+          onClick={() => changeLanguage(lng.code)}
+          className={`px-2 py-1 text-sm rounded ${
+            i18nextInstance.language === lng.code
+              ? "bg-blue-500 text-white"
+              : "bg-transparent text-gray-300 hover:text-white"
+          }`}
+        >
+          {lng.label}
+        </button>
+      ))}
+      {children}
     </div>
   );
-}
+};
