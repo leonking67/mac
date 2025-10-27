@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import Language from '../components/Language';
+import LanguageProvider from '../components/Language';
 
 export default function Page() {
   const { t } = useTranslation();
@@ -10,9 +10,11 @@ export default function Page() {
     <main className="min-h-screen flex flex-col items-center justify-center text-center p-10">
       <div className="flex justify-between w-full max-w-5xl items-center mb-6">
         <h1 className="text-4xl font-bold">{t('hero_title')}</h1>
-        <Language />
+        <LanguageProvider />
       </div>
+
       <p className="text-gray-400 mt-2">{t('hero_sub')}</p>
+
       <div className="mt-6 space-x-4">
         <button className="bg-blue-600 text-white px-4 py-2 rounded">
           {t('cta_view_work')}
