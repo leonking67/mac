@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
+body { @apply bg-white text-gray-900 dark:bg-[#0b0f17] dark:text-gray-100; }
+.container { @apply mx-auto px-4 sm:px-6 lg:px-8; }
+.section { @apply py-16 sm:py-20; }
+.card { @apply rounded-2xl shadow-soft border border-gray-200/60 dark:border-white/10 bg-white/80 dark:bg-white/5 backdrop-blur; }
+.btn { @apply inline-flex items-center gap-2 rounded-2xl px-4 py-2 font-medium border border-transparent shadow-soft transition; }
+.btn-primary { @apply bg-brand text-white hover:bg-brand-dark; }
+.btn-ghost { @apply border-gray-200/60 dark:border-white/10 hover:bg-gray-50/50 dark:hover:bg-white/5; }
