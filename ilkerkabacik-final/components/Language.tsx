@@ -1,42 +1,32 @@
 'use client';
 import React, {createContext, useContext, useEffect, useState} from 'react';
 
-type Dict = Record<string, string>;
+// JSON'ları statik import (pakete kesin girer)
+import tr from '../locales/tr.json';
+// Diğer diller henüz yoksa sorun değil; TR'ye fallback yapacağız.
+let en: any = tr, ar: any = tr, zh: any = tr, ja: any = tr;
+try { en = (await import('../locales/en.json')).default } catch {}
+try { ar = (await import('../locales/ar.json')).default } catch {}
+try { zh = (await import('../locales/zh.json')).default } catch {}
+try { ja = (await import('../locales/ja.json')).default } catch {}
+
+type Dict = Record<string,string>;
 type Lang = 'en'|'tr'|'ar'|'zh'|'ja';
+
+const dicts: Record<Lang, Dict> = { tr, en, ar, zh, ja };
 
 type Ctx = { lang: Lang; setLang: (l:Lang)=>void; t: (k:string)=>string; };
 const LanguageContext = createContext<Ctx | null>(null);
 
-/** Dosyayı nerede olursa olsun bul: önce bundle import, olmazsa public'ten fetch */
-async function loadDict(lang: Lang): Promise<Dict> {
-  // 1) Root /locales içinden dynamic import
-  try {
-    const mod = await import(`../locales/${lang}.json`);
-    return (mod as any).default as Dict;
-  } catch {
-    // 2) public/locales içinden fetch fallback
-    try {
-      const res = await fetch(`/locales/${lang}.json`, { cache: 'no-store' });
-      if (!res.ok) throw new Error('404');
-      return await res.json();
-    } catch (e) {
-      console.error('i18n load error for', lang, e);
-      return {}; // dict boş kalırsa anahtarları gösterir
-    }
-  }
-}
-
 export function LanguageProvider({children}:{children:React.ReactNode}) {
   const [lang, setLang] = useState<Lang>('tr');
-  const [dict, setDict] = useState<Dict>({});
+  const [dict, setDict] = useState<Dict>(tr);
 
   useEffect(() => {
-    (async () => {
-      const d = await loadDict(lang);
-      setDict(d);
-      document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
-      document.documentElement.lang = lang;
-    })();
+    const d = dicts[lang] ?? tr;       // her zaman bir sözlük var
+    setDict(d);
+    document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
   }, [lang]);
 
   const t = (k:string) => dict[k] ?? k;
