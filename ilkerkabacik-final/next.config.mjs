@@ -1,12 +1,13 @@
 /** @type {import('next').NextConfig} */
-import i18nConfig from './next-i18next.config.js';
-
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    optimizePackageImports: ['react', 'react-dom'],
+  swcMinify: true,
+  i18n: {
+    locales: ['tr', 'en'],
+    defaultLocale: 'tr',
   },
-  ...i18nConfig
+  // ❌ Şu satırı tamamen kaldırdık:
+  // reloadOnPrerender: true,
 };
 
 export default nextConfig;
