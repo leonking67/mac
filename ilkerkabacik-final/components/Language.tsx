@@ -1,53 +1,45 @@
-"use client";
+'use client';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-import React from "react";
-import { useTranslation } from "react-i18next";
+type Language = 'tr' | 'en';
 
-const languages = [
-  { code: "tr", label: "TR" },
-  { code: "en", label: "EN" },
-  { code: "ar", label: "AR" },
-  { code: "zh", label: "中文" },
-  { code: "ja", label: "日本語" },
-];
+interface LanguageContextProps {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
+}
 
-const LanguageProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
-  const { i18n } = useTranslation();
+const translations: Record<Language, Record<string, string>> = {
+  tr: {
+    home: 'Ana Sayfa',
+    about: 'Hakkında',
+    contact: 'İletişim',
+    welcome: 'Hoş geldin',
+  },
+  en: {
+    home: 'Home',
+    about: 'About',
+    contact: 'Contact',
+    welcome: 'Welcome',
+  },
+};
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("language", lng);
-    }
-  };
+const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
 
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedLng = localStorage.getItem("language");
-      if (savedLng && savedLng !== i18n.language) {
-        i18n.changeLanguage(savedLng);
-      }
-    }
-  }, [i18n]);
+export const LanguageProvider = ({ children }: { children: ReactNode }) => {
+  const [language, setLanguage] = useState<Language>('tr');
+
+  const t = (key: string) => translations[language][key] || key;
 
   return (
-    <div className="flex items-center gap-2">
-      {languages.map((lng) => (
-        <button
-          key={lng.code}
-          onClick={() => changeLanguage(lng.code)}
-          className={`px-2 py-1 text-sm rounded transition-colors ${
-            i18n.language === lng.code
-              ? "bg-blue-500 text-white"
-              : "bg-transparent text-gray-300 hover:text-white"
-          }`}
-        >
-          {lng.label}
-        </button>
-      ))}
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
-    </div>
+    </LanguageContext.Provider>
   );
 };
 
-export default LanguageProvider;
+export const useI18n = () => {
+  const context = useContext(LanguageContext);
+  if (!context) throw new Error('useI18n must be used within a LanguageProvider');
+  return context;
+};
